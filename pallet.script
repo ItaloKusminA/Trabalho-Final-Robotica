@@ -1,0 +1,87 @@
+def pallet_parametric():
+  set_gravity([0.0, 0.0, 9.82])
+  set_safety_mode_transition_hardness(1)
+  set_standard_analog_input_domain(0,1)
+  set_standard_analog_input_domain(1,1)
+  set_tool_analog_input_domain(0,1)
+  set_tool_analog_input_domain(1,1)
+  set_analog_outputdomain(0,0)
+  set_analog_outputdomain(1,0)
+  set_input_actions_to_default()
+  set_tool_voltage(0)
+  set_tcp(p[0.0,0.0,0.0,0.0,0.0,0.0])
+  set_payload(0.0)
+
+  cnt = 0
+
+  box_z = 0.050
+  grid_cols = 5
+  grid_rows = 5
+  grid_layers = 1
+  total_boxes = grid_cols * grid_rows * grid_layers
+
+  pegaCaixa = p[0.7279, 0.4348, 0.0619, 2.935, 1.119, 0.018]
+
+  Pallet1 = p[0.9694, -0.5625, -0.4054, 3.078, -0.601, 0.008]
+  Pallet2 = p[0.5947, -0.2273, -0.4063, 3.13, -0.176, -0.098]
+  Pallet3 = p[0.2818, -0.5961, -0.4114, 2.824, -1.34, 0.030]
+  Pallet4 = p[0.6612, -0.9238, -0.4115, 2.874, -1.235, 0.032]
+
+  approach_dist = 0.150
+
+  p_accel = 1.0
+  p_vel = 0.3
+
+  while (True):
+    cnt_x = cnt % grid_cols
+    cnt_y = floor((cnt % (grid_cols * grid_rows)) / grid_cols)
+    cnt_z = floor(cnt / (grid_cols * grid_rows))
+
+    fx = cnt_x / (grid_cols - 1.0)
+    fy = cnt_y / (grid_rows - 1.0)
+
+    pose_x1 = interpolate_pose(Pallet1, Pallet2, fx)
+    pose_x2 = interpolate_pose(Pallet4, Pallet3, fx)
+    pattern_pose = interpolate_pose(pose_x1, pose_x2, fy)
+
+    pattern_pose[2] = pattern_pose[2] + (cnt_z * box_z)
+
+    approach_pose = pattern_pose
+    approach_pose[2] = approach_pose[2] + approach_dist
+
+    exit_pose = pattern_pose
+    exit_pose[2] = exit_pose[2] + approach_dist
+
+    pega_approach = pegaCaixa
+    pega_approach[2] = pega_approach[2] + approach_dist
+
+    pega_exit = pegaCaixa
+    pega_exit[2] = pega_exit[2] + approach_dist
+
+    q_curr = get_actual_joint_positions()
+
+    if (is_within_safety_limits(pega_approach) and is_within_safety_limits(pegaCaixa) and is_within_safety_limits(approach_pose) and is_within_safety_limits(pattern_pose) and is_within_safety_limits(exit_pose)):
+      movel(pega_approach, a=p_accel, v=p_vel)
+      movel(pegaCaixa, a=p_accel, v=p_vel)
+      set_standard_digital_out(0, True)
+      sleep(3)
+      movel(pega_exit, a=p_accel, v=p_vel)
+
+      movel(approach_pose, a=p_accel, v=p_vel)
+      movel(pattern_pose, a=p_accel, v=p_vel)
+      set_standard_digital_out(0, False)
+      sleep(0.01)
+      movel(exit_pose, a=p_accel, v=p_vel)
+    else:
+      popup("Ponto fora dos limites de seguranca calculados.", error=True, blocking=True)
+      halt
+    end
+
+    if (cnt >= total_boxes - 1):
+      cnt = 0
+    else:
+      cnt = cnt + 1
+    end
+  end
+end
+pallet_parametric()
