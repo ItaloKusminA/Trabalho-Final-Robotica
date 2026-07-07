@@ -1,9 +1,9 @@
 # Trabalho Final - Célula de Paletização com UR10
 
-**Universidade Federal de Santa Catarina - UFSC/Joinville**
-**Disciplina:** EMB5615-09605 (20261) - Robótica e Sistemas Mecatrônicos
-**Docente:** Anelize Zomkowski Salvi
-**Semestre:** 2026/1
+* **Universidade Federal de Santa Catarina - UFSC/Joinville**
+* **Disciplina:** EMB5615-09605 (20261) - Robótica e Sistemas Mecatrônicos
+* **Docente:** Anelize Zomkowski Salvi
+* **Semestre:** 2026/1
 
 ## 👥 Equipe
 * **Ítalo Miranda Kusmin Alves** - Matrícula: 22101930
